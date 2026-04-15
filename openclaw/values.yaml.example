@@ -11,8 +11,15 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  create: false
+  create: true
   name: ""
+  automountToken: true
+  annotations: {}
+
+rbac:
+  create: true
+  clusterWide: true
+  clusterRole: cluster-admin
 
 namespace:
   create: true

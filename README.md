@@ -58,6 +58,11 @@ This Helm chart deploys the OpenClaw gateway service with:
 | `namespace.create` | Create namespace | `true` |
 | `namespace.name` | Namespace name | `openclaw` |
 | `service.port` | Service port | `18789` |
+| `serviceAccount.create` | Create a dedicated ServiceAccount for in-cluster auth | `true` |
+| `serviceAccount.automountToken` | Mount Kubernetes service account token into the pod | `true` |
+| `rbac.create` | Create RBAC binding for the ServiceAccount | `true` |
+| `rbac.clusterWide` | Use a ClusterRoleBinding instead of namespace-only binding | `true` |
+| `rbac.clusterRole` | ClusterRole to bind, for example `cluster-admin` or `edit` | `cluster-admin` |
 | `persistence.enabled` | Enable persistent storage | `true` |
 | `persistence.size` | PVC storage size | `10Gi` |
 | `persistence.storageClass` | Storage class (empty for default) | `""` |
@@ -110,6 +115,27 @@ resources:
     cpu: 250m
     memory: 512Mi
 ```
+
+## Kubernetes Access Model
+
+This chart can grant the OpenClaw pod in-cluster Kubernetes API access using a dedicated ServiceAccount and RBAC binding.
+
+Default example settings:
+
+```yaml
+serviceAccount:
+  create: true
+  automountToken: true
+
+rbac:
+  create: true
+  clusterWide: true
+  clusterRole: cluster-admin
+```
+
+This uses native in-cluster auth, so the assistant can use `kubectl` without a separate kubeconfig when the container image includes the client binary.
+
+If you want to reduce access later, change `rbac.clusterRole` to a narrower built-in or custom ClusterRole.
 
 ## State Management Model
 

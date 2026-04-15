@@ -27,10 +27,10 @@ spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       {{- end }}
-      {{- if .Values.serviceAccount.create }}
+      {{- if or .Values.serviceAccount.create .Values.serviceAccount.name }}
       serviceAccountName: {{ include "openclaw.serviceAccountName" . }}
       {{- end }}
-      automountServiceAccountToken: false
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountToken | default true }}
       securityContext:
         fsGroup: {{ .Values.securityContext.fsGroup }}
         seccompProfile:
