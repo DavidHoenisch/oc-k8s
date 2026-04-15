@@ -59,6 +59,13 @@ spec:
                   name: {{ .Values.secret.name }}
                   key: GH_TOKEN
             {{- end }}
+            {{- if .Values.secret.opServiceAccountToken }}
+            - name: OP_SERVICE_ACCOUNT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.name }}
+                  key: OP_SERVICE_ACCOUNT_TOKEN
+            {{- end }}
           securityContext:
             runAsUser: {{ .Values.initSecurityContext.runAsUser }}
             runAsGroup: {{ .Values.initSecurityContext.runAsGroup }}
@@ -137,6 +144,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret.name }}
                   key: GH_TOKEN
+            {{- end }}
+            {{- if .Values.secret.opServiceAccountToken }}
+            - name: OP_SERVICE_ACCOUNT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.name }}
+                  key: OP_SERVICE_ACCOUNT_TOKEN
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

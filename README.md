@@ -76,12 +76,25 @@ secret:
   enabled: true
   name: openclaw-secrets
   gatewayToken: ""  # Auto-generated if empty
+  ghToken: ""       # optional GitHub CLI token
+  opServiceAccountToken: ""  # optional 1Password service account token
   apiKeys:
     anthropic: ""   # sk-ant-...
     openai: ""      # sk-...
     gemini: ""      # Google API key
     openrouter: ""  # OpenRouter API key
 ```
+
+### 1Password service account support
+
+If your image includes the `op` CLI, the chart can inject `OP_SERVICE_ACCOUNT_TOKEN` into both the init container and the gateway container:
+
+```yaml
+secret:
+  opServiceAccountToken: "ops_..."
+```
+
+That gives OpenClaw and local helper scripts a clean headless path to use 1Password-backed secret retrieval.
 
 ### Gateway Configuration
 
