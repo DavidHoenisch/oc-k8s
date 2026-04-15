@@ -47,6 +47,7 @@ spec:
               mkdir -p /home/node/.openclaw/config/git
               mkdir -p /home/node/.openclaw/config/gh
               mkdir -p /home/node/.openclaw/config/op
+              chmod 700 /home/node/.openclaw/config/op
               {{- if .Values.secret.ghToken }}
               _token="$GH_TOKEN" && unset GH_TOKEN && echo "$_token" | gh auth login --with-token
               {{- end }}

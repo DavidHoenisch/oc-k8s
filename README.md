@@ -100,7 +100,9 @@ The chart also sets:
 
 - `OP_CONFIG_DIR=/home/node/.openclaw/config/op`
 
-so the 1Password CLI writes its local state to the PVC-backed writable config path instead of the read-only container home.
+The init container also locks that directory down to mode `700`, because the 1Password CLI refuses broader permissions.
+
+So the 1Password CLI writes its local state to the PVC-backed writable config path instead of the read-only container home.
 
 ### Gateway Configuration
 
