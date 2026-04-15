@@ -96,6 +96,12 @@ secret:
 
 That gives OpenClaw and local helper scripts a clean headless path to use 1Password-backed secret retrieval.
 
+The chart also sets:
+
+- `OP_CONFIG_DIR=/home/node/.openclaw/config/op`
+
+so the 1Password CLI writes its local state to the PVC-backed writable config path instead of the read-only container home.
+
 ### Gateway Configuration
 
 ```yaml
