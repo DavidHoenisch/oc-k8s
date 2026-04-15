@@ -111,6 +111,38 @@ resources:
     memory: 512Mi
 ```
 
+## State Management Model
+
+This chart now uses a split model between immutable, Helm-managed configuration and mutable runtime state on the PVC.
+
+### Immutable, Git/Helm-managed
+
+These are rendered from the chart and mounted read-only into the running container:
+
+- `~/.openclaw/openclaw.json`
+- `~/.openclaw/workspace/AGENTS.md` (when provided)
+- `~/.openclaw/workspace/SOUL.md` (when provided)
+- `~/.openclaw/workspace/USER.md` (when provided)
+
+ConfigMap and Secret changes automatically trigger a pod rollout through checksum annotations.
+
+### Mutable, PVC-backed runtime state
+
+These remain writable and persist across redeploys:
+
+- `~/.openclaw/memory/`
+- `~/.openclaw/agents/`
+- `~/.openclaw/tasks/`
+- `~/.openclaw/devices/`
+- `~/.openclaw/credentials/`
+- `~/.openclaw/identity/`
+- `~/.openclaw/logs/`
+- most of `~/.openclaw/workspace/`
+
+### Intentional exception
+
+`IDENTITY.md` and `TOOLS.md` are not mounted read-only by default, so the assistant can evolve local identity and setup notes without requiring a chart redeploy.
+
 ## Security
 
 This chart implements security best practices:

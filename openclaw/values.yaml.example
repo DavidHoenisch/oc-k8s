@@ -120,6 +120,7 @@ secret:
   # Telegram bot token for Telegram channel integration (optional)
   # Get your bot token from @BotFather on Telegram
   telegramBotToken: ""
+  ghToken: ""
   apiKeys:
     anthropic: ""
     openai: ""

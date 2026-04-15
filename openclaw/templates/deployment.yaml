@@ -19,6 +19,9 @@ spec:
     metadata:
       labels:
         {{- include "openclaw.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -40,11 +43,9 @@ spec:
             - sh
             - -c
             - |
-              cp /config/openclaw.json /home/node/.openclaw/openclaw.json
               mkdir -p /home/node/.openclaw/workspace
               mkdir -p /home/node/.openclaw/config/git
               mkdir -p /home/node/.openclaw/config/gh
-              for f in /config/*.md; do cp "$f" /home/node/.openclaw/workspace/; done
               {{- if .Values.secret.ghToken }}
               _token="$GH_TOKEN" && unset GH_TOKEN && echo "$_token" | gh auth login --with-token
               {{- end }}
@@ -66,8 +67,6 @@ spec:
           volumeMounts:
             - name: openclaw-home
               mountPath: /home/node/.openclaw
-            - name: config
-              mountPath: /config
       containers:
         - name: gateway
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -165,6 +164,28 @@ spec:
             - name: openclaw-home
               mountPath: /home/node/.config/gh
               subPath: config/gh
+            - name: config
+              mountPath: /home/node/.openclaw/openclaw.json
+              subPath: openclaw.json
+              readOnly: true
+            {{- if gt (len (.Files.Glob "files/AGENTS.md")) 0 }}
+            - name: config
+              mountPath: /home/node/.openclaw/workspace/AGENTS.md
+              subPath: AGENTS.md
+              readOnly: true
+            {{- end }}
+            {{- if gt (len (.Files.Glob "files/SOUL.md")) 0 }}
+            - name: config
+              mountPath: /home/node/.openclaw/workspace/SOUL.md
+              subPath: SOUL.md
+              readOnly: true
+            {{- end }}
+            {{- if gt (len (.Files.Glob "files/USER.md")) 0 }}
+            - name: config
+              mountPath: /home/node/.openclaw/workspace/USER.md
+              subPath: USER.md
+              readOnly: true
+            {{- end }}
             - name: tmp-volume
               mountPath: /tmp
           securityContext:
