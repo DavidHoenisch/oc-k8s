@@ -6,4 +6,7 @@ version: '3'
 tasks:
   upgrade:
     cmds:
-      helm upgrade openclaw ./openclaw -n openclaw -f openclaw/values.yaml
+      - helm upgrade openclaw ./openclaw -n openclaw -f openclaw/values.yaml
+  rollout:
+    cmds:
+      - kubectl rollout restart deployment/openclaw-oc-dashboard -n openclaw
