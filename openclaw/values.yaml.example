@@ -91,6 +91,11 @@ config:
         workspace: ~/.openclaw/workspace
   cron:
     enabled: false
+  browser:
+    enabled: true
+    headless: true
+    noSandbox: true
+    executablePath: /usr/bin/chromium
   channels:
     telegram:
       enabled: true

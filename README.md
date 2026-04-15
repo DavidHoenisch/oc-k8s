@@ -2,6 +2,8 @@
 
 A Helm chart for deploying [OpenClaw](https://openclaw.dev) - an AI assistant platform - to Kubernetes clusters.
 
+The repo also includes a companion `Dockerfile` for building a more capable OpenClaw image with tools like `gh`, `helm`, `kubectl`, `op`, and Chromium for headless browser automation.
+
 ## Overview
 
 This Helm chart deploys the OpenClaw gateway service with:
@@ -34,12 +36,18 @@ This Helm chart deploys the OpenClaw gateway service with:
    #     openrouter: "..."
    ```
 
-2. **Install the chart:**
+2. **Build and publish your image:**
+   ```bash
+   docker build -t <your-registry>/openclaw-tools:<tag> .
+   docker push <your-registry>/openclaw-tools:<tag>
+   ```
+
+3. **Install the chart:**
    ```bash
    helm install openclaw ./openclaw -n openclaw --create-namespace
    ```
 
-3. **Access the service:**
+4. **Access the service:**
    ```bash
    kubectl port-forward svc/openclaw 18789:18789 -n openclaw
    # Open http://localhost:18789
@@ -66,6 +74,23 @@ This Helm chart deploys the OpenClaw gateway service with:
 | `persistence.enabled` | Enable persistent storage | `true` |
 | `persistence.size` | PVC storage size | `10Gi` |
 | `persistence.storageClass` | Storage class (empty for default) | `""` |
+
+### Browser support in Kubernetes
+
+OpenClaw ships with built-in browser control, but the container image still needs a Chromium-based browser binary.
+
+This repo's `Dockerfile` installs `chromium`, and the example chart values enable container-friendly browser defaults:
+
+```yaml
+config:
+  browser:
+    enabled: true
+    headless: true
+    noSandbox: true
+    executablePath: /usr/bin/chromium
+```
+
+For this deployment style, `headless: true` and `noSandbox: true` are the sane defaults.
 
 ### AI Provider API Keys
 
