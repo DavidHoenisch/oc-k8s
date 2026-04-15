@@ -207,6 +207,30 @@ spec:
               subPath: USER.md
               readOnly: true
             {{- end }}
+            {{- if gt (len (.Files.Glob "files/ops/AGENTS.md")) 0 }}
+            - name: config
+              mountPath: /home/node/.openclaw/workspace/ops/AGENTS.md
+              subPath: OPS_AGENTS.md
+              readOnly: true
+            {{- end }}
+            {{- if gt (len (.Files.Glob "files/ops/SOUL.md")) 0 }}
+            - name: config
+              mountPath: /home/node/.openclaw/workspace/ops/SOUL.md
+              subPath: OPS_SOUL.md
+              readOnly: true
+            {{- end }}
+            {{- if gt (len (.Files.Glob "files/ops/IDENTITY.md")) 0 }}
+            - name: config
+              mountPath: /home/node/.openclaw/workspace/ops/IDENTITY.md
+              subPath: OPS_IDENTITY.md
+              readOnly: true
+            {{- end }}
+            {{- if gt (len (.Files.Glob "files/ops/RUNBOOK.md")) 0 }}
+            - name: config
+              mountPath: /home/node/.openclaw/workspace/ops/RUNBOOK.md
+              subPath: OPS_RUNBOOK.md
+              readOnly: true
+            {{- end }}
             - name: tmp-volume
               mountPath: /tmp
           securityContext:

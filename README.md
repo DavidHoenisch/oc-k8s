@@ -155,6 +155,15 @@ config:
 
 This gives you a second built-in agent for operational work without needing a second deployment. The chart init container also creates the `~/.openclaw/workspace/ops` directory on the PVC so the workspace exists from first boot.
 
+The chart can also mount a minimal per-agent markdown stack into the ops workspace:
+
+- `ops/AGENTS.md`
+- `ops/SOUL.md`
+- `ops/IDENTITY.md`
+- `ops/RUNBOOK.md`
+
+Those files are Helm-managed and mounted read-only, just like the top-level shared guidance files.
+
 ### Resource Limits
 
 ```yaml

@@ -13,6 +13,22 @@ data:
   {{ $name }}: |
 {{- $root.Files.Get $path | nindent 4 }}
 {{- end }}
+{{- if gt (len (.Files.Glob "files/ops/AGENTS.md")) 0 }}
+  OPS_AGENTS.md: |
+{{- $root.Files.Get "files/ops/AGENTS.md" | nindent 4 }}
+{{- end }}
+{{- if gt (len (.Files.Glob "files/ops/SOUL.md")) 0 }}
+  OPS_SOUL.md: |
+{{- $root.Files.Get "files/ops/SOUL.md" | nindent 4 }}
+{{- end }}
+{{- if gt (len (.Files.Glob "files/ops/IDENTITY.md")) 0 }}
+  OPS_IDENTITY.md: |
+{{- $root.Files.Get "files/ops/IDENTITY.md" | nindent 4 }}
+{{- end }}
+{{- if gt (len (.Files.Glob "files/ops/RUNBOOK.md")) 0 }}
+  OPS_RUNBOOK.md: |
+{{- $root.Files.Get "files/ops/RUNBOOK.md" | nindent 4 }}
+{{- end }}
 {{- if not (.Files.Glob "files/*.md") }}
   AGENTS.md: |
     # OpenClaw Assistant
