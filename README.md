@@ -148,7 +148,12 @@ config:
       - id: default
         name: OpenClaw Assistant
         workspace: ~/.openclaw/workspace
+      - id: ops
+        name: Ops Agent
+        workspace: ~/.openclaw/workspace/ops
 ```
+
+This gives you a second built-in agent for operational work without needing a second deployment. The chart init container also creates the `~/.openclaw/workspace/ops` directory on the PVC so the workspace exists from first boot.
 
 ### Resource Limits
 

@@ -89,6 +89,9 @@ config:
       - id: default
         name: OpenClaw Assistant
         workspace: ~/.openclaw/workspace
+      - id: ops
+        name: Ops Agent
+        workspace: ~/.openclaw/workspace/ops
   cron:
     enabled: false
   browser:
