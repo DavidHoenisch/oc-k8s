@@ -1,0 +1,17 @@
+apiVersion: v2
+name: oc-dashboard
+description: OpenClaw - AI Assistant Platform
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - openclaw
+  - ai
+  - assistant
+  - gateway
+home: https://openclaw.dev
+sources:
+  - https://github.com/openclaw/openclaw
+maintainers:
+  - name: OpenClaw
+    email: hello@openclaw.dev

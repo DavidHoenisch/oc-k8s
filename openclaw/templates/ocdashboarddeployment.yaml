@@ -1,0 +1,28 @@
+{{- if .Values.dashboard.create }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.dashboard.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.dashboard.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.dashboard.name }}
+    spec:
+      containers:
+        - name: {{ .Values.dashboard.name }}
+          image: dh1689/openclaw-dashboard:713b0b
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: {{ .Values.dashboard.name}}-volume
+              mountPath: /home/dashboard/.openclaw
+      volumes:
+        - name: {{ .Values.dashboard.name }}-volume
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-home-pvc
+{{- end }}

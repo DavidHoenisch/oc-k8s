@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openclaw.fullname" . }}-config
+  labels:
+    {{- include "openclaw.labels" . | nindent 4 }}
+data:
+  openclaw.json: |
+    {{ .Values.config | toJson }}
+{{- $root := . }}
+{{- range $path, $bytes := .Files.Glob "files/*.md" }}
+{{- $name := base $path }}
+  {{ $name }}: |
+{{- $root.Files.Get $path | nindent 4 }}
+{{- end }}
+{{- if not (.Files.Glob "files/*.md") }}
+  AGENTS.md: |
+    # OpenClaw Assistant
+
+    You are a helpful AI assistant running in Kubernetes.
+{{- end }}

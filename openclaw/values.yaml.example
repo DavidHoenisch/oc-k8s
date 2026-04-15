@@ -1,0 +1,132 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/openclaw/openclaw
+  tag: slim
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  name: ""
+
+namespace:
+  create: true
+  name: openclaw
+
+service:
+  type: ClusterIP
+  port: 18789
+  annotations: {}
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: openclaw.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+initResources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+
+readinessProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+config:
+  gateway:
+    mode: local
+    bind: loopback
+    port: 18789
+    auth:
+      mode: token
+    controlUi:
+      enabled: true
+  agents:
+    defaults:
+      workspace: ~/.openclaw/workspace
+    list:
+      - id: default
+        name: OpenClaw Assistant
+        workspace: ~/.openclaw/workspace
+  cron:
+    enabled: false
+  channels:
+    telegram:
+      enabled: true
+      dmPolicy: pairing
+      groups:
+        "*":
+          requireMention: false
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+
+initSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+
+podAnnotations: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+secret:
+  enabled: true
+  name: openclaw-secrets
+  existingSecret: ""
+  gatewayToken: ""
+  # Telegram bot token for Telegram channel integration (optional)
+  # Get your bot token from @BotFather on Telegram
+  telegramBotToken: ""
+  apiKeys:
+    anthropic: ""
+    openai: ""
+    gemini: ""
+    openrouter: ""
+  annotations: {}
+
+dashboard:
+   enabled: true
+   name: oc-dashboard
