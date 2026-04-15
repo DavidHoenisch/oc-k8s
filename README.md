@@ -116,6 +116,26 @@ resources:
     memory: 512Mi
 ```
 
+## Cluster Caretaker
+
+The repo includes a simple first-pass caretaker script:
+
+```bash
+./scripts/cluster-caretaker.sh openclaw
+```
+
+It checks:
+
+- pod and deployment readiness
+- container restarts
+- recent namespace events
+- PVC presence
+- runtime disk usage for `~/.openclaw`
+- OpenClaw health from inside the running pod
+- current container images
+
+This is a practical baseline for "is my assistant home healthy right now?" and a good starting point for future automation.
+
 ## Kubernetes Access Model
 
 This chart can grant the OpenClaw pod in-cluster Kubernetes API access using a dedicated ServiceAccount and RBAC binding.
