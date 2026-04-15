@@ -43,7 +43,21 @@ spec:
               cp /config/openclaw.json /home/node/.openclaw/openclaw.json
               mkdir -p /home/node/.openclaw/workspace
               mkdir -p /home/node/.openclaw/config/git
+              mkdir -p /home/node/.openclaw/config/gh
               for f in /config/*.md; do cp "$f" /home/node/.openclaw/workspace/; done
+              {{- if .Values.secret.ghToken }}
+              _token="$GH_TOKEN" && unset GH_TOKEN && echo "$_token" | gh auth login --with-token
+              {{- end }}
+          env:
+            - name: XDG_CONFIG_HOME
+              value: /home/node/.openclaw/config
+            {{- if .Values.secret.ghToken }}
+            - name: GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.name }}
+                  key: GH_TOKEN
+            {{- end }}
           securityContext:
             runAsUser: {{ .Values.initSecurityContext.runAsUser }}
             runAsGroup: {{ .Values.initSecurityContext.runAsGroup }}
@@ -148,6 +162,9 @@ spec:
           volumeMounts:
             - name: openclaw-home
               mountPath: /home/node/.openclaw
+            - name: openclaw-home
+              mountPath: /home/node/.config/gh
+              subPath: config/gh
             - name: tmp-volume
               mountPath: /tmp
           securityContext:
