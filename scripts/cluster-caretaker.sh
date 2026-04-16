@@ -17,8 +17,15 @@ say() {
   printf '\n## %s\n' "$1"
 }
 
-jsonpath_first_pod='{range .items[0]}{.metadata.name}{end}'
-POD="$(kubectl get pods -n "$NAMESPACE" -l "$APP_LABEL" -o jsonpath="$jsonpath_first_pod" 2>/dev/null || true)"
+RUNNING_POD="$(kubectl get pods -n "$NAMESPACE" -l "$APP_LABEL" \
+  --field-selector=status.phase=Running \
+  --sort-by=.metadata.creationTimestamp \
+  -o jsonpath='{.items[-1:].metadata.name}' 2>/dev/null || true)"
+
+FAILED_PODS="$(kubectl get pods -n "$NAMESPACE" -l "$APP_LABEL" \
+  --field-selector=status.phase=Failed \
+  -o custom-columns='POD:.metadata.name,REASON:.status.reason,MESSAGE:.status.message' \
+  --no-headers 2>/dev/null || true)"
 
 say "Summary"
 kubectl get pods -n "$NAMESPACE" -o wide
@@ -38,9 +45,9 @@ kubectl get events -n "$NAMESPACE" --sort-by=.lastTimestamp | tail -n 20 || true
 say "PVCs"
 kubectl get pvc -n "$NAMESPACE" -o wide || true
 
-if [[ -n "$POD" ]]; then
+if [[ -n "$RUNNING_POD" ]]; then
   say "Runtime storage"
-  kubectl exec -n "$NAMESPACE" -c gateway "$POD" -- sh -c '
+  kubectl exec -n "$NAMESPACE" -c gateway "$RUNNING_POD" -- sh -c '
     echo "pod=$(hostname)"
     echo "--- disk usage ---"
     df -h /home/node/.openclaw /tmp
@@ -53,7 +60,12 @@ if [[ -n "$POD" ]]; then
   ' || true
 
   say "OpenClaw pod health"
-  kubectl exec -n "$NAMESPACE" -c gateway "$POD" -- sh -c 'openclaw health --json' || true
+  kubectl exec -n "$NAMESPACE" -c gateway "$RUNNING_POD" -- sh -c 'openclaw health --json' || true
+fi
+
+if [[ -n "$FAILED_PODS" ]]; then
+  say "Failed pods"
+  echo "$FAILED_PODS"
 fi
 
 say "Images"
@@ -62,8 +74,12 @@ kubectl get pods -n "$NAMESPACE" -o jsonpath='{range .items[*]}{.metadata.name}{
 echo
 say "Caretaker verdict"
 RESTART_SUM="$(kubectl get pods -n "$NAMESPACE" -o jsonpath='{range .items[*]}{.metadata.name}{"="}{range .status.containerStatuses[*]}{.restartCount}{" "}{end}{"\n"}{end}' 2>/dev/null || true)"
-if echo "$RESTART_SUM" | grep -Eq '=[1-9]'; then
+if [[ -n "$FAILED_PODS" ]]; then
+  echo "attention: one or more pods are in Failed state"
+elif echo "$RESTART_SUM" | grep -Eq '=[1-9]'; then
   echo "attention: one or more containers have restarted"
+elif [[ -z "$RUNNING_POD" ]]; then
+  echo "attention: no running pod matched label $APP_LABEL in namespace $NAMESPACE"
 else
-  echo "ok: no container restarts detected in namespace $NAMESPACE"
+  echo "ok: running pod healthy enough for exec checks and no failed pods/restarts detected in namespace $NAMESPACE"
 fi
