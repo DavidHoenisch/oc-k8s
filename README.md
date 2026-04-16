@@ -69,8 +69,9 @@ This Helm chart deploys the OpenClaw gateway service with:
 | `serviceAccount.create` | Create a dedicated ServiceAccount for in-cluster auth | `true` |
 | `serviceAccount.automountToken` | Mount Kubernetes service account token into the pod | `true` |
 | `rbac.create` | Create RBAC binding for the ServiceAccount | `true` |
-| `rbac.clusterWide` | Use a ClusterRoleBinding instead of namespace-only binding | `true` |
-| `rbac.clusterRole` | ClusterRole to bind, for example `cluster-admin` or `edit` | `cluster-admin` |
+| `rbac.clusterWide` | Use a ClusterRoleBinding instead of namespace-only binding | `false` |
+| `rbac.clusterRole` | ClusterRole to bind, for example `edit` or `cluster-admin` | `edit` |
+| `networkPolicy.enabled` | Create a NetworkPolicy for the OpenClaw pod | `false` |
 | `persistence.enabled` | Enable persistent storage | `true` |
 | `persistence.size` | PVC storage size | `10Gi` |
 | `persistence.storageClass` | Storage class (empty for default) | `""` |
@@ -209,13 +210,20 @@ serviceAccount:
 
 rbac:
   create: true
-  clusterWide: true
-  clusterRole: cluster-admin
+  clusterWide: false
+  clusterRole: edit
 ```
 
 This uses native in-cluster auth, so the assistant can use `kubectl` without a separate kubeconfig when the container image includes the client binary.
 
-If you want to reduce access later, change `rbac.clusterRole` to a narrower built-in or custom ClusterRole.
+If you really want broad cluster control, make it an explicit opt-in:
+
+```yaml
+rbac:
+  create: true
+  clusterWide: true
+  clusterRole: cluster-admin
+```
 
 ## State Management Model
 
@@ -251,13 +259,30 @@ These remain writable and persist across redeploys:
 
 ## Security
 
-This chart implements security best practices:
+This chart implements baseline container hardening:
 
 - **Non-root container**: Runs as UID 1000
 - **Read-only root filesystem**: Prevents runtime modifications
 - **No privilege escalation**: `allowPrivilegeEscalation: false`
 - **Dropped capabilities**: All capabilities removed
 - **Seccomp profile**: RuntimeDefault
+- **Loopback bind by default**: example config keeps the gateway on `loopback`
+- **ClusterIP service by default**: no public exposure unless you add ingress or another front door
+
+### Hardening recommendations
+
+1. Keep the gateway private by default. Do not expose the Control UI directly to the public internet unless you have a real auth layer, network boundary, or zero-trust front door in front of it.
+2. Prefer pairing/authenticated chat channels over open inbound exposure.
+3. Start with namespace-scoped RBAC. Only opt into `cluster-admin` if you intentionally want broad cluster control.
+4. Consider enabling a NetworkPolicy so ingress and egress are explicit.
+5. Run periodic security checks, for example:
+
+```bash
+openclaw security audit --deep
+openclaw update status
+```
+
+A practical pattern is a daily Gateway cron that runs `openclaw security audit --deep` every 24 hours and only notifies you when something meaningful is wrong.
 - **Secret management**: API keys stored in Kubernetes Secrets
 - **Security contexts**: Properly configured for init and main containers
 

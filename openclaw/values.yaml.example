@@ -18,8 +18,16 @@ serviceAccount:
 
 rbac:
   create: true
-  clusterWide: true
-  clusterRole: cluster-admin
+  clusterWide: false
+  clusterRole: edit
+
+networkPolicy:
+  enabled: false
+  allowSameNamespaceIngress: true
+  allowDns: true
+  allowKubeApi: true
+  extraIngress: []
+  extraEgress: []
 
 namespace:
   create: true
@@ -46,8 +54,8 @@ resources:
     cpu: "1"
     memory: 2Gi
   requests:
-    cpu: 250m
-    memory: 512Mi
+    cpu: 500m
+    memory: 900Mi
 
 initResources:
   limits:
